@@ -23,6 +23,9 @@ void setup () {
 
   Serial.begin(115200);         //Serial connection
 
+  // Disable the WiFi persistence to reduce the writes to the flash
+  // https://github.com/esp8266/arduino/issues/1054
+  WiFi.persistent(false);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);   //WiFi connection
 
