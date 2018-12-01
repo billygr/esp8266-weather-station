@@ -4,28 +4,40 @@
 // Garbage on default serial port due to the boot rom
 // https://github.com/espressif/esptool/wiki/ESP8266-Boot-ROM-Log
 // TODO: If neeeded use the second serial
+// SD0 to 3V3 => I2C address BMP280 0x77
 
 #include <ESP8266WiFi.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP280.h>
+Adafruit_BMP280 bme; // I2C
 const char* ssid = "ssid";
 const char* password = "password";
 
 const char* host = "host";
 const char* apikey = "0123456789ABCDEF";
 
-#define ONE_WIRE_BUS D2  // DS18B20 pin
+#define ONE_WIRE_BUS D3  // DS18B20 pin
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature DS18B20(&oneWire);
+
+unsigned int ADCValue=0;
+float VBAT=0.0;
 
 void setup () {
 
   Serial.begin(115200);         //Serial connection
 
+  ADCValue = analogRead(A0);
+  VBAT = ADCValue / 1023.0;
+  VBAT = VBAT * 4.2;
+
   // Disable the WiFi persistence to reduce the writes to the flash
   // https://github.com/esp8266/arduino/issues/1054
   WiFi.persistent(false);
+
+  WiFi.disconnect();
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);   //WiFi connection
 
@@ -42,6 +54,10 @@ void setup () {
     ESP.restart();
   }
 
+  if (!bme.begin()) {
+    Serial.println("Could not find a valid BMP280 sensor, check wiring!");
+    while (1);
+ }
   Serial.println();
   Serial.print("Connected to WiFi: ");
   Serial.println(ssid);
@@ -49,10 +65,26 @@ void setup () {
   Serial.println(WiFi.localIP());
 
   float temperature = getTemperature();
+  float pressure =  bme.readPressure()/100;
 
   Serial.print("Temperature: ");
   Serial.println(temperature);
 
+  //Serial.print("BMB280 Temperature = ");
+  //Serial.print(bme.readTemperature());
+  //Serial.println(" *C");
+
+  Serial.print("Pressure = ");
+  Serial.print(pressure);
+  Serial.println(" hPa");
+
+  Serial.print("Approx altitude = ");
+  Serial.print(bme.readAltitude(1013.25)); // this should be adjusted to your local forcase
+  Serial.println(" m");
+
+  Serial.println(VBAT);
+
+  Serial.println();
 
   WiFiClient client;
   const int httpPort = 80;
@@ -63,12 +95,21 @@ void setup () {
 
   char outstr[15];
   dtostrf(temperature,4, 2, outstr);
-  String temperaturestring= outstr;
+  String temperaturestring = outstr;
 
   Serial.print("Temperature String:");
   Serial.println(temperaturestring);
 
-  String url = "/emoncms/input/post.json?json={Temperature_ESP8266:"+ temperaturestring +"}&apikey="+apikey;
+  dtostrf(pressure,4, 2, outstr);
+  String pressurestring = outstr;
+
+  Serial.print("Pressure String:");
+  Serial.println(pressurestring);
+
+  dtostrf(VBAT,4, 2, outstr);
+  String voltagestring = outstr;
+
+  String url = "/emoncms/input/post.json?json={Temperature_ESP8266:"+ temperaturestring +",Pressure_ESP8266:"+ pressurestring +",Voltage_ESP8266:"+voltagestring +"}&apikey="+apikey;
 
   Serial.print("Requesting URL: ");
   Serial.println(url);
