@@ -4,14 +4,15 @@
 // Garbage on default serial port due to the boot rom
 // https://github.com/espressif/esptool/wiki/ESP8266-Boot-ROM-Log
 // TODO: If neeeded use the second serial
-// SD0 to 3V3 => I2C address BMP280 0x77
+// If using a BMP280 SD0 to 3V3 => I2C address BMP280 0x77
+// BME280 is also on 0x77
 
 #include <ESP8266WiFi.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Adafruit_Sensor.h>
-#include <Adafruit_BMP280.h>
-Adafruit_BMP280 bme; // I2C
+#include <Adafruit_BME280.h>
+
 const char* ssid = "ssid";
 const char* password = "password";
 
@@ -19,6 +20,9 @@ const char* host = "host";
 const char* apikey = "0123456789ABCDEF";
 
 #define ONE_WIRE_BUS D3  // DS18B20 pin
+#define BATTERY_SENSE A0 // ADC pin to measure battery voltage
+
+Adafruit_BME280 bme; // I2C
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature DS18B20(&oneWire);
 
@@ -29,7 +33,7 @@ void setup () {
 
   Serial.begin(115200);         //Serial connection
 
-  ADCValue = analogRead(A0);
+  ADCValue = analogRead(BATTERY_SENSE);
   VBAT = ADCValue / 1023.0;
   VBAT = VBAT * 4.2;
 
@@ -54,7 +58,7 @@ void setup () {
     ESP.restart();
   }
 
-  if (!bme.begin()) {
+  if (!bme.begin(0x76)) {
     Serial.println("Could not find a valid BMP280 sensor, check wiring!");
     while (1);
  }
@@ -66,11 +70,15 @@ void setup () {
 
   float temperature = getTemperature();
   float pressure =  bme.readPressure()/100;
+  float humidity = bme.readHumidity();
 
   Serial.print("Temperature: ");
   Serial.println(temperature);
 
-  //Serial.print("BMB280 Temperature = ");
+  Serial.print("Humidity: ");
+  Serial.println(humidity);
+  
+  //Serial.print("BME280 Temperature = ");
   //Serial.print(bme.readTemperature());
   //Serial.println(" *C");
 
@@ -82,6 +90,7 @@ void setup () {
   Serial.print(bme.readAltitude(1013.25)); // this should be adjusted to your local forcase
   Serial.println(" m");
 
+  Serial.print("Battery voltage = ");
   Serial.println(VBAT);
 
   Serial.println();
