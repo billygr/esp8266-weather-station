@@ -16,8 +16,10 @@
 const char* ssid = "ssid";
 const char* password = "password";
 
+// EMONCMS settings
 const char* host = "host";
 const char* apikey = "0123456789ABCDEF";
+const char* node = "0";
 
 #define ONE_WIRE_BUS D3  // DS18B20 pin
 #define BATTERY_SENSE A0 // ADC pin to measure battery voltage
@@ -60,7 +62,9 @@ void setup () {
 
   if (!bme.begin(0x76)) {
     Serial.println("Could not find a valid BMP280 sensor, check wiring!");
-    while (1);
+    Serial.print(".");
+    delay(20000);
+    ESP.restart();
  }
   Serial.println();
   Serial.print("Connected to WiFi: ");
