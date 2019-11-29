@@ -21,7 +21,7 @@ const char* host = "host";
 const char* apikey = "0123456789ABCDEF";
 const char* node = "0";
 
-#define ONE_WIRE_BUS D3  // DS18B20 pin
+#define ONE_WIRE_BUS 0  // DS18B20 pin D3/GPIO0 on ESP8266
 #define BATTERY_SENSE A0 // ADC pin to measure battery voltage
 
 Adafruit_BME280 bme; // I2C
@@ -61,7 +61,7 @@ void setup () {
   }
 
   if (!bme.begin(0x76)) {
-    Serial.println("Could not find a valid BMP280 sensor, check wiring!");
+    Serial.println("Could not find a valid BMΕ280 sensor, check wiring!");
     Serial.print(".");
     delay(20000);
     ESP.restart();
@@ -107,22 +107,26 @@ void setup () {
   }
 
   char outstr[15];
+
   dtostrf(temperature,4, 2, outstr);
   String temperaturestring = outstr;
-
   Serial.print("Temperature String:");
   Serial.println(temperaturestring);
 
+  dtostrf(humidity,4, 2, outstr);
+  String humiditystring = outstr;
+  Serial.print("Humidity String:");
+  Serial.println(humiditystring);
+
   dtostrf(pressure,4, 2, outstr);
   String pressurestring = outstr;
-
   Serial.print("Pressure String:");
   Serial.println(pressurestring);
 
   dtostrf(VBAT,4, 2, outstr);
   String voltagestring = outstr;
 
-  String url = "/emoncms/input/post.json?json={Temperature_ESP8266:"+ temperaturestring +",Pressure_ESP8266:"+ pressurestring +",Voltage_ESP8266:"+voltagestring +"}&apikey="+apikey;
+  String url = "/emoncms/input/post.json?json={Temperature_ESP8266:"+ temperaturestring +",Humidity_ESP8266:"+ humiditystring +",Pressure_ESP8266:"+ pressurestring +",Voltage_ESP8266:"+voltagestring +"}&apikey="+apikey;
 
   Serial.print("Requesting URL: ");
   Serial.println(url);
