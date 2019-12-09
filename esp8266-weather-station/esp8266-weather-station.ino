@@ -24,6 +24,8 @@ const char* node = "0";
 #define ONE_WIRE_BUS 0  // DS18B20 pin D3/GPIO0 on ESP8266
 #define BATTERY_SENSE A0 // ADC pin to measure battery voltage
 
+#define BME280_I2C_ADDRESS 0x76
+
 Adafruit_BME280 bme; // I2C
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature DS18B20(&oneWire);
@@ -47,11 +49,6 @@ void setup () {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);   //WiFi connection
 
-  //while (WiFi.status() != WL_CONNECTED) {
-  //  delay(1000);
-  //  Serial.println("Waiting for connection...");
-  //}
-
   //Wait to connect to Wi-Fi for 20 seconds, if not reboot, probably wrong SSID/PASSWORD
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {
     Serial.println("Connection Failed! Rebooting...");
@@ -60,11 +57,9 @@ void setup () {
     ESP.restart();
   }
 
-  if (!bme.begin(0x76)) {
+  if (!bme.begin(BME280_I2C_ADDRESS)) {
     Serial.println("Could not find a valid BMΕ280 sensor, check wiring!");
     Serial.print(".");
-    delay(20000);
-    ESP.restart();
  }
   Serial.println();
   Serial.print("Connected to WiFi: ");
@@ -82,9 +77,9 @@ void setup () {
   Serial.print("Humidity: ");
   Serial.println(humidity);
   
-  //Serial.print("BME280 Temperature = ");
-  //Serial.print(bme.readTemperature());
-  //Serial.println(" *C");
+  Serial.print("BME280 Temperature = ");
+  Serial.print(bme.readTemperature());
+  Serial.println(" *C");
 
   Serial.print("Pressure = ");
   Serial.print(pressure);
@@ -103,6 +98,11 @@ void setup () {
   const int httpPort = 80;
   if (!client.connect(host, httpPort)) {
     Serial.println("Connection failed");
+    Serial.println("Going to sleep mode for 5 minutes and rebooting");
+    //Sleep for 5 minutes to avoid battery drain and then reboot hopefully the server will be up
+    ESP.deepSleep(5 * 60 * 1000000, WAKE_RF_DEFAULT);
+    delay(1000);
+    ESP.restart();
     return;
   }
 
