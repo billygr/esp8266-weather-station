@@ -1,6 +1,8 @@
 # esp8266-weather-station
 
-As simple as it gets ESP8266 weather station on top of a NodeMCU, powered by a 18650 and a solar panel
+As simple as it gets ESP8266 weather station on top of my ESP8266 KISS, powered by a 18650 Lithium battery and a solar panel
+
+http://www.billy.gr/esp8266-kiss/
 
 ## Wiring
 
