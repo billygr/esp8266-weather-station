@@ -4,6 +4,8 @@
 // Garbage on default serial port due to the boot rom
 // https://github.com/espressif/esptool/wiki/ESP8266-Boot-ROM-Log
 // TODO: If neeeded use the second serial
+// TODO: BME compesate for altitude, convert your current altitude in m to ft, 
+// divide /20 or /30 subscract that value from a close METAR station (Q = hpa)
 // If using a BMP280 SD0 to 3V3 => I2C address BMP280 0x77
 // BME280 is also on 0x77
 
