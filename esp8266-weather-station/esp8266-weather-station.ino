@@ -4,7 +4,7 @@
 // Garbage on default serial port due to the boot rom
 // https://github.com/espressif/esptool/wiki/ESP8266-Boot-ROM-Log
 // TODO: If neeeded use the second serial
-// TODO: BME compesate for altitude, convert your current altitude in m to ft, 
+// TODO: BME compensate for altitude, convert your current altitude in m to ft,
 // divide /20 or /30 subscract that value from a close METAR station (Q = hpa)
 // If using a BMP280 SD0 to 3V3 => I2C address BMP280 0x77
 // BME280 is also on 0x77
@@ -85,7 +85,7 @@ void setup () {
   Serial.println(" hPa");
 
   Serial.print("Approx altitude = ");
-  Serial.print(bme.readAltitude(1013.25)); // this should be adjusted to your local forcase
+  Serial.print(bme.readAltitude(1013.25)); // this should be adjusted to your local forcast
   Serial.println(" m");
 
   Serial.print("Battery voltage = ");
@@ -128,9 +128,11 @@ void setup () {
 
 // mqtt send here
   MQTTclient.setServer(mqtt_server, 1883);
-  if (MQTTclient.connected()) {
+  if (!MQTTclient.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Create a random client ID
+    // TODO Client ID should contain part of MAC
+    // TODO Connection should be authenticated
     String clientId = "ESP8266Client-";
     clientId += String(random(0xffff), HEX);
     // Attempt to connect
