@@ -14,14 +14,11 @@
 #include <DallasTemperature.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
+#include <PubSubClient.h>
 
 const char* ssid = "ssid";
 const char* password = "password";
-
-// EMONCMS settings
-const char* host = "host";
-const char* apikey = "0123456789ABCDEF";
-const char* node = "0";
+const char* mqtt_server = "broker.mqtt-dashboard.com";
 
 #define ONE_WIRE_BUS 0  // DS18B20 pin D3/GPIO0 on ESP8266
 #define BATTERY_SENSE A0 // ADC pin to measure battery voltage
@@ -96,9 +93,10 @@ void setup () {
 
   Serial.println();
 
-  WiFiClient client;
-  const int httpPort = 80;
-  if (!client.connect(host, httpPort)) {
+  WiFiClient WiFiESP8266client;
+  PubSubClient MQTTclient(WiFiESP8266client);
+
+  if (!WiFiESP8266client.connect(mqtt_server, 1883)) {
     Serial.println("Connection failed");
     Serial.println("Going to sleep mode for 5 minutes and rebooting");
     //Sleep for 5 minutes to avoid battery drain and then reboot hopefully the server will be up
@@ -128,19 +126,28 @@ void setup () {
   dtostrf(VBAT,4, 2, outstr);
   String voltagestring = outstr;
 
-  String url = "/emoncms/input/post.json?json={Temperature_ESP8266:"+ temperaturestring +",Humidity_ESP8266:"+ humiditystring +",Pressure_ESP8266:"+ pressurestring +",Voltage_ESP8266:"+voltagestring +"}&apikey="+apikey;
-
-  Serial.print("Requesting URL: ");
-  Serial.println(url);
-
-  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" + 
-               "Connection: close\r\n\r\n");
+// mqtt send here
+  MQTTclient.setServer(mqtt_server, 1883);
+  if (MQTTclient.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    // Create a random client ID
+    String clientId = "ESP8266Client-";
+    clientId += String(random(0xffff), HEX);
+    // Attempt to connect
+    if (MQTTclient.connect(clientId.c_str())) {
+      Serial.println("connected");
+      // Once connected, publish an announcement...
+      MQTTclient.publish("outTopic", "hello world");
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(MQTTclient.state());
+    }
+  }
   delay(2000);
 
   // Read the server response and print it to serial
-  while(client.available()){
-    String line = client.readStringUntil('\r');
+  while(WiFiESP8266client.available()){
+    String line = WiFiESP8266client.readStringUntil('\r');
     Serial.print(line);
   }
 
