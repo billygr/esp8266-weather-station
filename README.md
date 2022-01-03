@@ -6,9 +6,9 @@ http://www.billy.gr/esp8266-kiss/
 
 ## Wiring
 
-DS18B20 temperature sensor on D3
+DS18B20 temperature sensor on D3/GPIO0
 
-BME280 I2C Temperature Humidity Pressure Sensor on D1/D2
+BME280 I2C Temperature Humidity Pressure Sensor on D2/D1 (GPIO4 SDA/GPIO5 SCL) 
 
 Battery Voltage on A0
 
