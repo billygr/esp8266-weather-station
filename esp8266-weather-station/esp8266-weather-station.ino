@@ -74,26 +74,19 @@ void setup () {
   float pressure =  bme.readPressure()/100;
   float humidity = bme.readHumidity();
 
-  Serial.print("Temperature: ");
-  Serial.println(temperature);
+  Serial.print("Temperature: ");Serial.println(temperature);
 
-  Serial.print("Humidity: ");
-  Serial.println(humidity);
+  Serial.print("Humidity: ");Serial.println(humidity);
   
-  Serial.print("BME280 Temperature = ");
-  Serial.print(bme.readTemperature());
-  Serial.println(" *C");
+  Serial.print("BME280 Temperature = ");Serial.print(bme.readTemperature());Serial.println(" *C");
 
-  Serial.print("Pressure = ");
-  Serial.print(pressure);
-  Serial.println(" hPa");
+  Serial.print("Pressure = ");Serial.print(pressure);Serial.println(" hPa");
 
   Serial.print("Approx altitude = ");
   Serial.print(bme.readAltitude(1013.25)); // this should be adjusted to your local forcast
   Serial.println(" m");
 
-  Serial.print("Battery voltage = ");
-  Serial.println(VBAT);
+  Serial.print("Battery voltage = ");Serial.println(VBAT);
 
   Serial.println();
 
