@@ -63,7 +63,8 @@ void setup () {
     Serial.println("Could not find a valid BMΕ280 sensor, check wiring!");
     Serial.print(".");
  }
-  Serial.println();
+
+  Serial.println("ESP8266 Weather Station");
   Serial.print("Connected to WiFi: ");
   Serial.println(ssid);
   Serial.print("IP address: ");
@@ -88,7 +89,7 @@ void setup () {
   Serial.println(" hPa");
 
   Serial.print("Approx altitude = ");
-  Serial.print(bme.readAltitude(1013.25)); // this should be adjusted to your local forcase
+  Serial.print(bme.readAltitude(1013.25)); // this should be adjusted to your local forcast
   Serial.println(" m");
 
   Serial.print("Battery voltage = ");
@@ -112,18 +113,15 @@ void setup () {
 
   dtostrf(temperature,4, 2, outstr);
   String temperaturestring = outstr;
-  Serial.print("Temperature String:");
-  Serial.println(temperaturestring);
+  Serial.print("Temperature String:");Serial.println(temperaturestring);
 
   dtostrf(humidity,4, 2, outstr);
   String humiditystring = outstr;
-  Serial.print("Humidity String:");
-  Serial.println(humiditystring);
+  Serial.print("Humidity String:");Serial.println(humiditystring);
 
   dtostrf(pressure,4, 2, outstr);
   String pressurestring = outstr;
-  Serial.print("Pressure String:");
-  Serial.println(pressurestring);
+  Serial.print("Pressure String:");Serial.println(pressurestring);
 
   dtostrf(VBAT,4, 2, outstr);
   String voltagestring = outstr;
